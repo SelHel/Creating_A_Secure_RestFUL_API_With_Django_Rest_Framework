@@ -1,0 +1,75 @@
+from django.db import models
+from users.models import User
+
+TYPE_CHOICES = [
+    ('BACK_END', 'Back-end'),
+    ('FRONT_END', 'Front-end'),
+    ('IOS', 'iOS'),
+    ('ANDROID', 'Android')
+]
+
+ROLE_CHOICES = [
+    ('AUTHOR', 'Auteur'),
+    ('CONTRIBUTOR', 'Contributeur'),
+]
+
+TAG_CHOICES = [
+    ('BUG', 'Bug'),
+    ('UPGRADE', 'Amélioration'),
+    ('TASK', 'Tâche'),
+]
+
+PRIORITY_CHOICES = [
+    ('LOW', 'Faible'),
+    ('MEDIUM', 'Moyenne'),
+    ('HIGH', 'Élevée'),
+]
+
+STATUS_CHOICES = [
+    ('TO_DO', 'À faire'),
+    ('IN_PROGRESS', 'En cours'),
+    ('DONE', 'Terminé'),
+]
+
+
+class Project(models.Model):
+    title = models.CharField(max_length=120)
+    description = models.TextField(null=True, blank=True)
+    type = models.CharField(max_length=8, choices=TYPE_CHOICES)
+    author_user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
+
+
+class Contributor(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
+    role = models.CharField(
+        max_length=11, choices=ROLE_CHOICES, default='CONTRIBUTOR')
+
+
+class Issue(models.Model):
+    title = models.CharField(max_length=128)
+    description = models.TextField(null=True, blank=True)
+    tag = models.CharField(max_length=10, choices=TAG_CHOICES)
+    priority = models.CharField(
+        max_length=10, choices=PRIORITY_CHOICES, default='LOW')
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=11, choices=STATUS_CHOICES, default='TO_DO')
+    author_user = models.ForeignKey(
+        to=User, related_name='created_issues', on_delete=models.CASCADE)
+    assignee_user = models.ForeignKey(
+        to=User, related_name='assigned_issues', on_delete=models.CASCADE)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Comment(models.Model):
+    description = models.TextField(null=True, blank=True)
+    author_user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    issue = models.ForeignKey(to=Issue, on_delete=models.CASCADE)
+    created_time = models.DateTimeField(auto_now_add=True)
