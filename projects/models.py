@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+from django.contrib.auth.models import User
 
 TYPE_CHOICES = [
     ('BACK_END', 'Back-end'),
@@ -35,7 +35,7 @@ STATUS_CHOICES = [
 class Project(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(null=True, blank=True)
-    type = models.CharField(max_length=8, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=15, choices=TYPE_CHOICES)
     author_user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -52,12 +52,12 @@ class Contributor(models.Model):
 class Issue(models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
-    tag = models.CharField(max_length=10, choices=TAG_CHOICES)
+    tag = models.CharField(max_length=15, choices=TAG_CHOICES)
     priority = models.CharField(
-        max_length=10, choices=PRIORITY_CHOICES, default='LOW')
+        max_length=15, choices=PRIORITY_CHOICES, default='LOW')
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
     status = models.CharField(
-        max_length=11, choices=STATUS_CHOICES, default='TO_DO')
+        max_length=15, choices=STATUS_CHOICES, default='TO_DO')
     author_user = models.ForeignKey(
         to=User, related_name='created_issues', on_delete=models.CASCADE)
     assignee_user = models.ForeignKey(
