@@ -48,6 +48,9 @@ class Contributor(models.Model):
     role = models.CharField(
         max_length=11, choices=ROLE_CHOICES, default='CONTRIBUTOR')
 
+    class Meta:
+        unique_together = ('user', 'project')
+
 
 class Issue(models.Model):
     title = models.CharField(max_length=128)
@@ -59,9 +62,9 @@ class Issue(models.Model):
     status = models.CharField(
         max_length=15, choices=STATUS_CHOICES, default='TO_DO')
     author_user = models.ForeignKey(
-        to=User, related_name='created_issues', on_delete=models.CASCADE)
+        to=User, on_delete=models.CASCADE, related_name='created_issues')
     assignee_user = models.ForeignKey(
-        to=User, related_name='assigned_issues', on_delete=models.CASCADE)
+        to=User, on_delete=models.CASCADE, related_name='assigned_issues')
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
