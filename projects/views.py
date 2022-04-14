@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from projects.models import Project, Contributor, Issue, Comment
 from projects.serializers import (
     ProjectSerializer,
-    ContributorsSerializer,
+    ContributorSerializer,
     IssueSerializer,
     CommentSerializer)
 
@@ -14,16 +14,28 @@ class ProjectViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Project.objects.all()
+        contributor = Contributor.objects.filter(user=self.request.user)
+        projects_user = [c.project.id for c in contributor]
+        return Project.objects.filter(id__in=projects_user)
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            instance = serializer.save(author_user=self.request.user)
+            Contributor.objects.create(user=self.request.user, project=instance, role='AUTHOR')
 
 
-class ContributorsViewset(ModelViewSet):
+class ContributorViewset(ModelViewSet):
 
-    serializer_class = ContributorsSerializer
+    serializer_class = ContributorSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Contributor.objects.all()
+        return Contributor.objects.filter(project=self.kwargs['project_pk'])
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            project = Project.objects.get(id=self.kwargs["project_pk"])
+            return serializer.save(project=project)
 
 
 class IssueViewSet(ModelViewSet):

@@ -6,27 +6,25 @@ class ProjectSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type', 'author_user']
+        exclude = ('author_user', )
 
 
-class ContributorsSerializer(ModelSerializer):
+class ContributorSerializer(ModelSerializer):
 
     class Meta:
         model = Contributor
-        fields = ['id', 'user', 'project', 'role']
+        fields = "__all__"
 
 
 class IssueSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['id', 'title', 'description', 'tag', 'priority', 'project',
-                  'status', 'author_user', 'assignee_user', 'created_time']
+        fields = "__all__"
 
 
 class CommentSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'description', 'author_user', 'issue',
-                  'created_time']
+        fields = "__all__"
