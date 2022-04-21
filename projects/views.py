@@ -1,3 +1,5 @@
+from django.db import IntegrityError
+from rest_framework.exceptions import NotAcceptable
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from projects.models import Project, Contributor, Issue, Comment
@@ -33,9 +35,12 @@ class ContributorViewset(ModelViewSet):
         return Contributor.objects.filter(project=self.kwargs['project_pk'])
 
     def perform_create(self, serializer):
-        if self.request.user.is_authenticated:
-            project = Project.objects.get(id=self.kwargs["project_pk"])
-            return serializer.save(project=project)
+        try:
+            if self.request.user.is_authenticated:
+                project = Project.objects.get(id=self.kwargs["project_pk"])
+                return serializer.save(project=project)
+        except IntegrityError:
+            raise NotAcceptable("Un seul auteur possible par projet.")
 
 
 class IssueViewSet(ModelViewSet):

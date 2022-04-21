@@ -10,7 +10,7 @@ TYPE_CHOICES = [
 
 ROLE_CHOICES = [
     ('AUTHOR', 'Auteur'),
-    ('CONTRIBUTOR', 'Contributeur'),
+    ('CONTRIBUTOR', 'Collaborateur'),
 ]
 
 TAG_CHOICES = [
@@ -50,6 +50,10 @@ class Contributor(models.Model):
 
     class Meta:
         unique_together = ('user', 'project')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['project'], condition=models.Q(role='AUTHOR'), name='unique_author_per_project')
+        ]
 
 
 class Issue(models.Model):
