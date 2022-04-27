@@ -22,6 +22,7 @@ from projects.views import (
     IssueViewSet,
     ContributorViewset,
     CommentViewSet)
+from users.views import CreateUserAPIView
 
 
 router = routers.SimpleRouter()
@@ -37,6 +38,7 @@ issues_router.register('comments', CommentViewSet, basename='comments')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
+    path('signup/', CreateUserAPIView.as_view(), name='signup'),
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include(router.urls)),
