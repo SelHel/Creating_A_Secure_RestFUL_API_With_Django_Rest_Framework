@@ -3,11 +3,13 @@ from rest_framework.exceptions import NotAcceptable
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from projects.models import Project, Contributor, Issue, Comment
-from projects.serializers import (
-    ProjectSerializer,
-    ContributorSerializer,
-    IssueSerializer,
-    CommentSerializer)
+from projects.permissions import (IsAuthorOrReadOnly,
+                                  IsProjectAuthor,
+                                  IsProjectContributor)
+from projects.serializers import (ProjectSerializer,
+                                  ContributorSerializer,
+                                  IssueSerializer,
+                                  CommentSerializer)
 
 
 class ProjectViewSet(ModelViewSet):
@@ -29,7 +31,7 @@ class ProjectViewSet(ModelViewSet):
 class ContributorViewset(ModelViewSet):
 
     serializer_class = ContributorSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsProjectAuthor]
 
     def get_queryset(self):
         return Contributor.objects.filter(project=self.kwargs['project_pk'])
@@ -46,7 +48,7 @@ class ContributorViewset(ModelViewSet):
 class IssueViewSet(ModelViewSet):
 
     serializer_class = IssueSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsProjectContributor]
 
     def get_queryset(self):
         return Issue.objects.all()
@@ -55,7 +57,7 @@ class IssueViewSet(ModelViewSet):
 class CommentViewSet(ModelViewSet):
 
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsProjectContributor]
 
     def get_queryset(self):
         return Comment.objects.all()
