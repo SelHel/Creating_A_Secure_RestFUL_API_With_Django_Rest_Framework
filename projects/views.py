@@ -4,6 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from projects.models import Project, Contributor, Issue, Comment
 from projects.permissions import (IsAuthorOrReadOnly,
+                                  IsContributorAdministrater,
                                   IsProjectAuthor,
                                   IsProjectContributor)
 from projects.serializers import (ProjectSerializer,
@@ -15,7 +16,7 @@ from projects.serializers import (ProjectSerializer,
 class ProjectViewSet(ModelViewSet):
 
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsProjectAuthor]
 
     def get_queryset(self):
         contributor = Contributor.objects.filter(user=self.request.user)
@@ -31,7 +32,7 @@ class ProjectViewSet(ModelViewSet):
 class ContributorViewset(ModelViewSet):
 
     serializer_class = ContributorSerializer
-    permission_classes = [IsAuthenticated, IsProjectAuthor]
+    permission_classes = [IsAuthenticated, IsContributorAdministrater]
 
     def get_queryset(self):
         return Contributor.objects.filter(project=self.kwargs['project_pk'])
@@ -39,8 +40,8 @@ class ContributorViewset(ModelViewSet):
     def perform_create(self, serializer):
         try:
             if self.request.user.is_authenticated:
-                project = Project.objects.get(id=self.kwargs["project_pk"])
-                return serializer.save(project=project)
+                project = Project.objects.get(id=self.kwargs['project_pk'])
+                return serializer.save(project=project, role='CONTRIBUTOR')
         except IntegrityError:
             raise NotAcceptable("Un seul auteur possible par projet.")
 
@@ -48,7 +49,7 @@ class ContributorViewset(ModelViewSet):
 class IssueViewSet(ModelViewSet):
 
     serializer_class = IssueSerializer
-    permission_classes = [IsAuthenticated, IsProjectContributor]
+    permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         return Issue.objects.all()

@@ -12,12 +12,47 @@ class IsAuthorOrReadOnly(BasePermission):
 
 
 class IsProjectAuthor(BasePermission):
-    """Autorisation personnalisée pour l'auteur d'un projet."""
-
+    """
+    Autorisation personnalisée pour l'auteur d'un projet.
+    Seul un utilisateur ayant le niveau de permission auteur a la possibilité de modifier
+    ou supprimer un projet et d'ajouter ou supprimer des contributeurs à un projet.
+    """
     message = "Accès refusé : Vous n'êtes pas l'auteur du projet."
+    # edit_methods = ("PUT", "PATCH", "DELETE")
 
-    def has_permission(self, request, view):
-        pass
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_superuser:
+            return True
+
+        if request.method in SAFE_METHODS:
+            return True
+
+        if obj.author_user == request.user:
+            return True
+
+        return False
+
+
+class IsContributorAdministrater(BasePermission):
+    """
+    Autorisation personnalisée pour l'auteur d'un projet.
+    Seul un utilisateur ayant le niveau de permission auteur a la possibilité de modifier
+    ou supprimer un projet et d'ajouter ou supprimer des contributeurs à un projet.
+    """
+    message = "Accès refusé : Vous n'êtes pas l'auteur du projet."
+    # edit_methods = ("PUT", "PATCH", "DELETE")
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_superuser:
+            return True
+
+        if request.method in SAFE_METHODS:
+            return True
+
+        if obj.project.author_user == request.user:
+            return True
+
+        return False
 
 
 class IsProjectContributor(BasePermission):

@@ -40,7 +40,7 @@ class Project(models.Model):
     author_user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.title
+        return f"project: {self.id} - {self.title}"
 
 
 class Contributor(models.Model):
@@ -54,6 +54,9 @@ class Contributor(models.Model):
             models.UniqueConstraint(
                 fields=['project'], condition=models.Q(role='AUTHOR'), name='unique_author_per_project')
         ]
+
+    def __str__(self):
+        return f"project: {self.project.id} , contributor: {self.id}, {self.role} - {self.user.username}"
 
 
 class Issue(models.Model):
