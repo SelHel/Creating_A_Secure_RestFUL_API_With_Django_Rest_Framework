@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 TYPE_CHOICES = [
     ('BACK_END', 'Back-end'),
@@ -10,7 +12,7 @@ TYPE_CHOICES = [
 
 ROLE_CHOICES = [
     ('AUTHOR', 'Auteur'),
-    ('CONTRIBUTOR', 'Collaborateur'),
+    ('CONTRIBUTOR', 'Contributeur'),
 ]
 
 TAG_CHOICES = [
@@ -40,12 +42,24 @@ class Project(models.Model):
     author_user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"project: {self.id} - {self.title}"
+        return f"Project_id : {self.id} - {self.title} - Author : {self.author_user}"
+
+
+@receiver(post_save, sender=Project)
+def add_contributor(sender, instance, created, **kwargs):
+    """Permet d'ajouter l'auteur du projet a la liste des contributeurs."""
+    # Vérifie si l'utilisateur n'est pas déjà auteur du projet.
+    if created:
+        Contributor.objects.create(
+            user=instance.author_user,
+            project=instance,
+            role='AUTHOR'
+        )
 
 
 class Contributor(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='contributor')
-    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name='contributor')
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name='contributors')
     role = models.CharField(max_length=11, choices=ROLE_CHOICES, default='CONTRIBUTOR')
 
     class Meta:
@@ -56,7 +70,7 @@ class Contributor(models.Model):
         ]
 
     def __str__(self):
-        return f"project: {self.project.id} , contributor: {self.id}, {self.role} - {self.user.username}"
+        return f"Project id : {self.project.id} / Contributor : {self.id} - {self.role} - {self.user.username}"
 
 
 class Issue(models.Model):
@@ -71,7 +85,7 @@ class Issue(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.title
+        return f"Issue id : {self.id} / Issue Author : {self.author_user} / Project id : {self.project.id}"
 
 
 class Comment(models.Model):
@@ -81,4 +95,4 @@ class Comment(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.issue) + " " + str(self.author_user)
+        return f"Comment id : {self.id} / Comment Author : {self.author_user} / Issue id : {self.issue.id}"

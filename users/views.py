@@ -6,10 +6,9 @@ from users.serializers import UserSerializer
 
 
 class CreateUserAPIView(APIView):
-    """Vue qui permet à l'utilisateur d'accéder à une URL pour créer un compte."""
+    """Permet à l'utilisateur d'accéder à une URL pour créer un compte."""
 
-    permission_classes = [AllowAny]
-    # Autorise tous les utilisateurs (authentifiés ou non) à accéder à cette url.
+    permission_classes = [AllowAny]  # Autorise tous les utilisateurs (authentifiés ou non) à accéder à cette url.
 
     def post(self, request):
         user = request.data
