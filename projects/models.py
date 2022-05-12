@@ -85,7 +85,7 @@ class Issue(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Issue id : {self.id} / Issue Author : {self.author_user.id} - {self.author_user} / Project id : {self.project.id}"
+        return f"Issue: {self.id} / IssueAuthor: {self.author_user.id}-{self.author_user} / Project: {self.project.id}"
 
 
 class Comment(models.Model):

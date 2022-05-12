@@ -1,7 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotAcceptable
 from rest_framework.permissions import IsAuthenticated
 
 from projects.models import (Project,
@@ -43,32 +41,14 @@ class ContributorViewset(ModelViewSet):
         """Retourne tous les contributeurs du projet."""
         return Contributor.objects.filter(project=self.kwargs['project_pk'])
 
-    def create(self, request, project_pk=None):
-        """Permet d'ajouter un utilisateur à la liste des contributeurs d'un projet."""
-        data = request.data.copy()
-        contributors_list = []
+    def perform_create(self, serializer):
+        """Permet d'ajouter un utilisateur à la liste des contributeurs du projet."""
+        try:
+            project = Project.objects.get(id=self.kwargs['project_pk'])
+            serializer.save(project=project, role="CONTRIBUTOR")
 
-        for object in Contributor.objects.filter(project_id=project_pk):
-            contributors_list.append(object.user_id)
-
-        # Vérifie si l'utilisateur connecté n'est pas déjà dans la liste des contributeurs.
-        if int(data['user']) in contributors_list:
-            return Response(
-                {"L'utilisateur est déjà dans la liste des contributeurs du projet."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        else:
-            # Ajout de l'utilisateur en tant que contributeur du projet.
-            data['project'] = project_pk
-            data['role'] = 'CONTRIBUTOR'
-            serializer = ContributorSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
-            return Response(
-                {"L'utilisateur a bien été ajouté à la liste des contributeurs du projet."},
-                status=status.HTTP_201_CREATED
-            )
+        except Exception as e:
+            raise NotAcceptable(str(e))
 
 
 class IssueViewSet(ModelViewSet):

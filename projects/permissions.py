@@ -35,7 +35,9 @@ class IsContributorsAdmin(BasePermission):
         project = Project.objects.get(id=view.kwargs['project_pk'])
         if request.method in SAFE_METHODS:
             return True
-        return project.author_user == request.user
+        if request.method in ["POST", "DELETE"]:
+            return project.author_user == request.user
+        return False
 
 
 class IsProjectContributor(BasePermission):
