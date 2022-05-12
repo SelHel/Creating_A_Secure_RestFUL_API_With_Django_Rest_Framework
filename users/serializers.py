@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer
 
 
 class UserSerializer(ModelSerializer):
-    """Permet de sérialiser les champs du modèle utilisateur."""
+    """Conversion des données du modèle User au format JSON."""
 
     class Meta:
         model = User

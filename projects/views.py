@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 from projects.models import (Project,
@@ -8,10 +9,9 @@ from projects.models import (Project,
                              Issue,
                              Comment)
 
-from projects.serializers import (ProjectSerializer,
-                                  ContributorSerializer,
+from projects.serializers import (ContributorSerializer,
                                   IssueSerializer,
-                                  CommentSerializer)
+                                  CommentSerializer, get_project_serializer)
 
 from projects.permissions import (IsProjectAuthor,
                                   IsContributorsAdmin,
@@ -20,8 +20,10 @@ from projects.permissions import (IsProjectAuthor,
 
 class ProjectViewSet(ModelViewSet):
 
-    serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated, IsProjectAuthor]
+
+    def get_serializer_class(self):
+        return get_project_serializer(self.request.user)
 
     def get_queryset(self):
         """Retourne la liste de tous les projets liés à l'utilisateur connecté."""
@@ -52,7 +54,7 @@ class ContributorViewset(ModelViewSet):
         # Vérifie si l'utilisateur connecté n'est pas déjà dans la liste des contributeurs.
         if int(data['user']) in contributors_list:
             return Response(
-                {"L'utilisateur est déjà contributeur de ce projet."},
+                {"L'utilisateur est déjà dans la liste des contributeurs du projet."},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
@@ -64,7 +66,7 @@ class ContributorViewset(ModelViewSet):
             serializer.save()
 
             return Response(
-                {"L'utilisateur à été ajouté à la liste des contributeurs du projet."},
+                {"L'utilisateur a bien été ajouté à la liste des contributeurs du projet."},
                 status=status.HTTP_201_CREATED
             )
 
@@ -78,24 +80,9 @@ class IssueViewSet(ModelViewSet):
         """Retourne tous les problèmes du projet."""
         return Issue.objects.filter(project=self.kwargs['project_pk'])
 
-    def create(self, request, project_pk=None):
+    def perform_create(self, serializer):
         """Permet de créer un problème dans un projet."""
-
-        data = request.data.copy()
-        data['author_user'] = self.request.user.pk
-        data['project'] = project_pk
-
-        if 'assignee_user' not in data:
-            data['assignee_user'] = request.user.pk
-
-        serialized_data = IssueSerializer(data=data)
-        serialized_data.is_valid(raise_exception=True)
-        serialized_data.save()
-
-        return Response(
-            {'Le problème a bien été créé.'},
-            status=status.HTTP_201_CREATED
-        )
+        serializer.save(author_user=self.request.user, project=Project.objects.get(id=self.kwargs['project_pk']))
 
 
 class CommentViewSet(ModelViewSet):
@@ -104,21 +91,9 @@ class CommentViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsProjectContributor]
 
     def get_queryset(self):
-        """Retourne tous les commentaires d'un problème."""
+        """Retourne tous les commentaires liés à un problème."""
         return Comment.objects.filter(issue=self.kwargs['issue_pk'])
 
-    def create(self, request, project_pk=None, issue_pk=None):
+    def perform_create(self, serializer):
         """Permet de créer un commentaire sur un problème."""
-
-        data = request.data.copy()
-        data['author_user'] = self.request.user.pk
-        data['issue'] = issue_pk
-
-        serialized_data = CommentSerializer(data=data)
-        serialized_data.is_valid(raise_exception=True)
-        serialized_data.save()
-
-        return Response(
-            {'Le commentaire a bien été créé.'},
-            status=status.HTTP_201_CREATED
-        )
+        serializer.save(author_user=self.request.user, issue=Issue.objects.get(id=self.kwargs['issue_pk']))

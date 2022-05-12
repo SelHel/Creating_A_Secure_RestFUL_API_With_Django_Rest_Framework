@@ -4,7 +4,7 @@ from projects.models import Project
 
 
 class IsProjectAuthor(BasePermission):
-    """Autorise uniquement les auteurs d'un objet à le modifier."""
+    """Autorise uniquement les auteurs d'un projet à le modifier."""
 
     def has_permission(self, request, view):
         return True
@@ -45,7 +45,7 @@ class IsProjectContributor(BasePermission):
 
     def has_permission(self, request, view):
         project = Project.objects.get(id=view.kwargs['project_pk'])
-        ctr_projects = Project.objects.filter(contributor__user=request.user)
+        ctr_projects = Project.objects.filter(contributors__user=request.user)
         if project in ctr_projects:
             return True
         return False
