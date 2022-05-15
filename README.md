@@ -60,7 +60,7 @@ L'application exploite les points de terminaison d'API qui servent les données.
 	```
 	 http://127.0.0.1:8000/admin/
 	```
-* Connectez-vous en utilisant le nom d'utilisateur "admin" et le mot de passe "admin".
+* Connectez-vous en utilisant le nom d'utilisateur `admin` et le mot de passe `admin`.
 
 ## Auteur
 **Selim Helaoui**
