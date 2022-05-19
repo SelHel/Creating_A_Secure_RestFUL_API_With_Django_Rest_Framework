@@ -21,10 +21,15 @@ class ProjectViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsProjectAuthor]
 
     def get_serializer_class(self):
+        """
+        Returns a serializer class with the connected user as the argument
+        """
         return get_project_serializer(self.request.user)
 
     def get_queryset(self):
-        """Retourne la liste de tous les projets liés à l'utilisateur connecté."""
+        """
+        Retourne la liste de tous les projets liés à l'utilisateur connecté.
+        """
         return Project.objects.filter(contributors__user_id=self.request.user)
 
     def perform_create(self, serializer):
