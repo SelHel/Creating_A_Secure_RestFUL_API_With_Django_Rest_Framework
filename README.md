@@ -15,13 +15,13 @@ L'application exploite les points de terminaison d'API qui servent les données.
 
 ## Installation de l'application
 
-* Récupérer les livrables du projet sur votre poste de travail en téléchargant le dossier **OpenclassroomsProject10-main** depuis ce lien [GitHub](https://github.com/SelHel/OpenclassroomsProject10.git) ou en clonant le dépôt en utilisant le terminal sous Mac/Linux ou l'invite de commandes sous Windows :<br>
+* Récupérer les livrables du projet sur votre poste de travail en téléchargant le dossier **Creating_A_Secure_RestFUL_API_With_Django_Rest_Framework-master** depuis ce lien [GitHub](https://github.com/SelHel/Creating_A_Secure_RestFUL_API_With_Django_Rest_Framework.git) ou en clonant le dépôt en utilisant le terminal sous Mac/Linux ou l'invite de commandes sous Windows :<br>
 
 	```
-	git clone https://github.com/SelHel/OpenclassroomsProject10.git
+	git clone https://github.com/SelHel/Creating_A_Secure_RestFUL_API_With_Django_Rest_Framework.git
 	```
 
-* Ensuite, placez vous dans le dossier "OpenclassroomsProject10" et créez un environnement virtuel :
+* Ensuite, placez vous dans le dossier courant et créez un environnement virtuel :
 
 	```
 	python -m venv <your-virtual-env-name>
